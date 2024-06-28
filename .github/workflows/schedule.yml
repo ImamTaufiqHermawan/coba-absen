@@ -1,0 +1,13 @@
+name: Schedule Poll
+
+on:
+  schedule:
+    - cron: "35 4 * * 1-5"
+
+jobs:
+  send-poll:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Send Poll
+        run: |
+          curl -X GET https://coba-absen.onrender.com/send-poll
