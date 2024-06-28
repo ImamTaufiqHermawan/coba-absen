@@ -12,8 +12,8 @@ const sendPoll = async () => {
   const url = `https://api.telegram.org/bot${TELEGRAM_TOKEN}/sendPoll`;
   const pollData = {
     chat_id: CHAT_ID,
-    question: "Your daily poll question?",
-    options: JSON.stringify(["Option 1", "Option 2", "Option 3"]),
+    question: "Absensi",
+    options: JSON.stringify(["WFO", "WFH", "Izin", "Sakit", "Cuti"]),
     is_anonymous: false,
     allows_multiple_answers: false,
   };
