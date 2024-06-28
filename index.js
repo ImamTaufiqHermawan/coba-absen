@@ -4,6 +4,7 @@ const axios = require("axios");
 
 const TELEGRAM_TOKEN = process.env.TELEGRAM_TOKEN;
 const CHAT_ID = process.env.CHAT_ID;
+const RENDER_URL = process.env.RENDER_URL;
 
 const app = express();
 app.use(bodyParser.json());
@@ -42,6 +43,7 @@ app.post(`/bot${TELEGRAM_TOKEN}`, (req, res) => {
 });
 
 app.get("/send-poll", async (req, res) => {
+  console.log("Poll endpoint triggered at", new Date().toISOString());
   await sendPoll();
   res.send("Poll sent");
 });
@@ -52,7 +54,7 @@ app.listen(PORT, () => {
 });
 
 const setWebhook = async () => {
-  const url = `https://api.telegram.org/bot${TELEGRAM_TOKEN}/setWebhook?url=https://coba-absen.onrender.com/bot${TELEGRAM_TOKEN}`;
+  const url = `https://api.telegram.org/bot${TELEGRAM_TOKEN}/setWebhook?url=${RENDER_URL}/bot${TELEGRAM_TOKEN}`;
   try {
     const response = await axios.get(url);
     console.log(response.data);
