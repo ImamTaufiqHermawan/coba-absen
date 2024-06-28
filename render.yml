@@ -8,6 +8,6 @@ services:
 
 jobs:
   - name: send-daily-poll
-    schedule: "0 12 * * 1-5" # Every day at 12:00 PM UTC from Monday to Friday
+    schedule: "45 3 * * 1-5" # 10:43 AM Jakarta time (UTC+7) is 11:43 AM Singapore time (UTC+8)
     webService: telegram-poll-bot
     command: "curl https://your-render-app-url/send-poll"
