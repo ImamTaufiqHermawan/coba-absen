@@ -5,9 +5,3 @@ services:
     plan: free
     buildCommand: "npm install"
     startCommand: "node index.js"
-
-jobs:
-  - name: send-daily-poll
-    schedule: "5 4 * * 1-5"
-    webService: telegram-poll-bot
-    command: "curl https://coba-absen.onrender.com/send-poll"
