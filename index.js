@@ -48,6 +48,14 @@ app.get("/send-poll", async (req, res) => {
   res.send("Poll sent");
 });
 
+app.get("/", async (req, res) => {
+  console.log(
+    "Untuk nyalain service free nya Render.com",
+    new Date().toISOString()
+  );
+  res.send("UDAH NYALA NIH !!!");
+});
+
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}`);
