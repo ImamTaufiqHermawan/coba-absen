@@ -12,8 +12,13 @@ app.use(bodyParser.json());
 // Slot machine symbols
 const symbols = ["🍒", "🍋", "🍊", "🍉", "⭐", "7️⃣"];
 
-// Function to generate a random slot machine result
-const getSlotResult = () => {
+// Function to generate a random or forced winning slot machine result
+const getSlotResult = (forceWin = false) => {
+  if (forceWin) {
+    const winningSymbol = symbols[Math.floor(Math.random() * symbols.length)];
+    return [winningSymbol, winningSymbol, winningSymbol];
+  }
+
   const result = [];
   for (let i = 0; i < 3; i++) {
     const randomIndex = Math.floor(Math.random() * symbols.length);
@@ -23,8 +28,8 @@ const getSlotResult = () => {
 };
 
 // Function to send the slot machine result
-const sendSlotResult = async (chatId) => {
-  const result = getSlotResult();
+const sendSlotResult = async (chatId, forceWin = false) => {
+  const result = getSlotResult(forceWin);
   const message = `🎰 [ ${result.join(" | ")} ] 🎰\n`;
 
   let outcomeMessage = "Better luck next time!";
@@ -84,9 +89,13 @@ app.post(`/bot${TELEGRAM_TOKEN}`, (req, res) => {
 
     console.log("Chat ID:", chatId);
 
-    // Check if the message is the /slot command
-    if (text && text.toLowerCase() === "/slot") {
-      sendSlotResult(chatId);
+    // Check if the message is the /slot or /slot-win-dong command
+    if (text) {
+      if (text.toLowerCase() === "/slot") {
+        sendSlotResult(chatId);
+      } else if (text.toLowerCase() === "/slot-win-dong") {
+        sendSlotResult(chatId, true); // Force a win
+      }
     }
 
     res.send("Chat ID logged in console.");
