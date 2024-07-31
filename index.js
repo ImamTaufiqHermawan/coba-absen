@@ -9,6 +9,51 @@ const RENDER_URL = process.env.RENDER_URL;
 const app = express();
 app.use(bodyParser.json());
 
+// Slot machine symbols
+const symbols = ["🍒", "🍋", "🍊", "🍉", "⭐", "7️⃣"];
+
+// Function to generate a random slot machine result
+const getSlotResult = () => {
+  const result = [];
+  for (let i = 0; i < 3; i++) {
+    const randomIndex = Math.floor(Math.random() * symbols.length);
+    result.push(symbols[randomIndex]);
+  }
+  return result;
+};
+
+// Function to send the slot machine result
+const sendSlotResult = async (chatId) => {
+  const result = getSlotResult();
+  const message = `🎰 [ ${result.join(" | ")} ] 🎰\n`;
+
+  let outcomeMessage = "Better luck next time!";
+
+  // Check if all three symbols match
+  if (result[0] === result[1] && result[1] === result[2]) {
+    outcomeMessage = "🎉 Jackpot! You win! 🎉";
+  }
+
+  const finalMessage = `${message}${outcomeMessage}`;
+
+  const url = `https://api.telegram.org/bot${TELEGRAM_TOKEN}/sendMessage`;
+  const messageData = {
+    chat_id: chatId,
+    text: finalMessage,
+  };
+
+  try {
+    const response = await axios.post(url, messageData);
+    if (response.data.ok) {
+      console.log("Slot machine result sent successfully");
+    } else {
+      console.error("Failed to send slot machine result", response.data);
+    }
+  } catch (error) {
+    console.error("Failed to send slot machine result", error);
+  }
+};
+
 const sendPoll = async () => {
   const url = `https://api.telegram.org/bot${TELEGRAM_TOKEN}/sendPoll`;
   const pollData = {
@@ -35,7 +80,15 @@ app.post(`/bot${TELEGRAM_TOKEN}`, (req, res) => {
   const message = req.body.message;
   if (message) {
     const chatId = message.chat.id;
+    const text = message.text;
+
     console.log("Chat ID:", chatId);
+
+    // Check if the message is the /slot command
+    if (text && text.toLowerCase() === "/slot") {
+      sendSlotResult(chatId);
+    }
+
     res.send("Chat ID logged in console.");
   } else {
     res.send("No message received.");
@@ -56,7 +109,7 @@ app.get("/", async (req, res) => {
   res.send("UDAH NYALA NIH !!!");
 });
 
-const PORT = process.env.PORT || 3000;
+const PORT = process.env.PORT || 9900;
 app.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}`);
 });
@@ -71,4 +124,5 @@ const setWebhook = async () => {
   }
 };
 
-setWebhook();
+// Uncomment the line below to set the webhook (only needed once)
+// setWebhook();
