@@ -64,7 +64,14 @@ const sendPoll = async () => {
   const pollData = {
     chat_id: CHAT_ID,
     question: "Absensi",
-    options: JSON.stringify(["WFO", "WFH", "Izin", "Sakit", "Cuti"]),
+    options: JSON.stringify([
+      "WFO - GPU",
+      "WFO - Kramat",
+      "WFH",
+      "Izin",
+      "Sakit",
+      "Cuti",
+    ]),
     is_anonymous: false,
     allows_multiple_answers: false,
   };
