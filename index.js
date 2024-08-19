@@ -5,6 +5,7 @@ const axios = require("axios");
 const TELEGRAM_TOKEN = process.env.TELEGRAM_TOKEN;
 const CHAT_ID = process.env.CHAT_ID;
 const RENDER_URL = process.env.RENDER_URL;
+const JSON_FILE_PATH = "/attendance_data.json"; // Adjust the path as necessary
 
 const app = express();
 app.use(bodyParser.json());
@@ -125,43 +126,66 @@ app.get("/", async (req, res) => {
   res.send("UDAH NYALA NIH !!!");
 });
 
-// Function to send attendance information to Telegram
-const sendAttendanceInfo = async (attendanceData) => {
-  const { WFO = [], WFH = [] } = attendanceData;
+// Function to format the current date as 'YYYY-MM-DD'
+const getFormattedDate = () => {
+  const today = new Date();
+  const year = today.getFullYear();
+  const month = String(today.getMonth() + 1).padStart(2, "0"); // Months are zero-based
+  const day = String(today.getDate()).padStart(2, "0");
+  return `${year}-${month}-${day}`;
+};
 
-  // Formatting the message
-  let message = "Sesuai doc https://docs.google.com/spreadsheets/d/11CIi5G-TUE9UsLFq7q5UJimcJ1DzBHzo/edit?pli=1&gid=1662467265#gid=1662467265 Berikut pegawai yang hari ini :\n\nWFO:\n";
-  message += WFO.map((name) => `- ${name}`).join("\n") || "- Tidak ada";
-  message += "\n\nWFH:\n";
-  message += WFH.map((name) => `- ${name}`).join("\n") || "- Tidak ada";
-
-  const url = `https://api.telegram.org/bot${TELEGRAM_TOKEN}/sendMessage`;
-  const messageData = {
-    chat_id: CHAT_ID,
-    text: message,
-  };
-
+// Function to send attendance information for the current date to Telegram
+const sendAttendanceInfoForDate = async (dateString) => {
   try {
+    // Read the data from the JSON file
+    const data = fs.readFileSync(JSON_FILE_PATH, "utf8");
+    const attendanceData = JSON.parse(data);
+
+    let WFO = [];
+    let WFH = [];
+
+    // Filter names based on their status for the specific date
+    attendanceData.forEach((person) => {
+      person.attendance.forEach((record) => {
+        if (record.date === dateString) {
+          if (record.status === "o" && !WFO.includes(person.name)) {
+            WFO.push(person.name);
+          }
+          if (record.status === "h" && !WFH.includes(person.name)) {
+            WFH.push(person.name);
+          }
+        }
+      });
+    });
+
+    // Formatting the message
+    let message = `Selamat Pagi Tim, sesuai data https://docs.google.com/spreadsheets/d/11CIi5G-TUE9UsLFq7q5UJimcJ1DzBHzo/edit?pli=1&gid=1662467265#gid=1662467265 \n untuk presensi pada tanggal ${dateString}:\n\nWFO:\n`;
+    message += WFO.map((name) => `- ${name}`).join("\n") || "- Tidak ada";
+    message += "\n\nWFH:\n";
+    message += WFH.map((name) => `- ${name}`).join("\n") || "- Tidak ada";
+
+    const url = `https://api.telegram.org/bot${TELEGRAM_TOKEN}/sendMessage`;
+    const messageData = {
+      chat_id: CHAT_ID,
+      text: message,
+    };
+
     const response = await axios.post(url, messageData);
     if (response.data.ok) {
-      console.log("Attendance info sent successfully");
+      console.log("Attendance info sent successfully for date:", dateString);
     } else {
       console.error("Failed to send attendance info", response.data);
     }
   } catch (error) {
-    console.error("Failed to send attendance info", error);
+    console.error("Error reading or processing the JSON file:", error);
   }
 };
 
-app.post("/send-attendance", async (req, res) => {
-  const attendanceData = req.body;
-
-  if (attendanceData) {
-    await sendAttendanceInfo(attendanceData);
-    res.send("Attendance info sent to Telegram.");
-  } else {
-    res.status(400).send("No attendance data provided.");
-  }
+app.get("/send-attendance", async (req, res) => {
+  const dateString = getFormattedDate(); // Get today's date in 'YYYY-MM-DD' format
+  await sendAttendanceInfoForDate(dateString);
+  res.send(`Attendance info for ${dateString} sent to Telegram.`);
 });
 
 const PORT = process.env.PORT || 9900;
