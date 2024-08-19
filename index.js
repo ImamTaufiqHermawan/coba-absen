@@ -3,6 +3,7 @@ const express = require("express");
 const bodyParser = require("body-parser");
 const axios = require("axios");
 const fs = require("fs");
+const moment = require('moment-timezone');
 
 const TELEGRAM_TOKEN = process.env.TELEGRAM_TOKEN;
 const CHAT_ID = process.env.CHAT_ID;
@@ -130,11 +131,7 @@ app.get("/", async (req, res) => {
 
 // Function to format the current date as 'YYYY-MM-DD'
 const getFormattedDate = () => {
-  const today = new Date();
-  const year = today.getFullYear();
-  const month = String(today.getMonth() + 1).padStart(2, "0"); // Months are zero-based
-  const day = String(today.getDate()).padStart(2, "0");
-  return `${year}-${month}-${day}`;
+  return moment().tz('Asia/Jakarta').format('YYYY-MM-DD');
 };
 
 // Function to send attendance information for the current date to Telegram
