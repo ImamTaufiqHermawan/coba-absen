@@ -130,7 +130,7 @@ const sendAttendanceInfo = async (attendanceData) => {
   const { WFO = [], WFH = [] } = attendanceData;
 
   // Formatting the message
-  let message = "Berikut pegawai yang hari ini :\n\nWFO:\n";
+  let message = "Sesuai doc https://docs.google.com/spreadsheets/d/11CIi5G-TUE9UsLFq7q5UJimcJ1DzBHzo/edit?pli=1&gid=1662467265#gid=1662467265 Berikut pegawai yang hari ini :\n\nWFO:\n";
   message += WFO.map((name) => `- ${name}`).join("\n") || "- Tidak ada";
   message += "\n\nWFH:\n";
   message += WFH.map((name) => `- ${name}`).join("\n") || "- Tidak ada";
