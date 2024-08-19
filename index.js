@@ -125,6 +125,45 @@ app.get("/", async (req, res) => {
   res.send("UDAH NYALA NIH !!!");
 });
 
+// Function to send attendance information to Telegram
+const sendAttendanceInfo = async (attendanceData) => {
+  const { WFO = [], WFH = [] } = attendanceData;
+
+  // Formatting the message
+  let message = "Berikut pegawai yang hari ini :\n\nWFO:\n";
+  message += WFO.map((name) => `- ${name}`).join("\n") || "- Tidak ada";
+  message += "\n\nWFH:\n";
+  message += WFH.map((name) => `- ${name}`).join("\n") || "- Tidak ada";
+
+  const url = `https://api.telegram.org/bot${TELEGRAM_TOKEN}/sendMessage`;
+  const messageData = {
+    chat_id: CHAT_ID,
+    text: message,
+  };
+
+  try {
+    const response = await axios.post(url, messageData);
+    if (response.data.ok) {
+      console.log("Attendance info sent successfully");
+    } else {
+      console.error("Failed to send attendance info", response.data);
+    }
+  } catch (error) {
+    console.error("Failed to send attendance info", error);
+  }
+};
+
+app.post("/send-attendance", async (req, res) => {
+  const attendanceData = req.body;
+
+  if (attendanceData) {
+    await sendAttendanceInfo(attendanceData);
+    res.send("Attendance info sent to Telegram.");
+  } else {
+    res.status(400).send("No attendance data provided.");
+  }
+});
+
 const PORT = process.env.PORT || 9900;
 app.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}`);
