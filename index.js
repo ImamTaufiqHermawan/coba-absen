@@ -69,8 +69,7 @@ const sendPoll = async () => {
     chat_id: CHAT_ID,
     question: "Absensi",
     options: JSON.stringify([
-      "WFO - GPU",
-      "WFO - Kramat",
+      "WFO",
       "WFH",
       "Izin",
       "Sakit",
